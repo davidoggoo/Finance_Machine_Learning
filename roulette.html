@@ -24,11 +24,11 @@
 <body>
     <header>
         <nav>
-            <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
-            <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
-            <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
-            <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
-            <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
+          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+          <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
+          <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
+          <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
         </nav>
     </header>
 
@@ -46,22 +46,14 @@
     </main>
 
     <script>
-        // --- SCRIPT JAVASCRIPT FINALE CON STILE ROBUSTO ---
+        // --- SCRIPT JAVASCRIPT FINALE E CORRETTO ---
         let tips = [];
         let rouletteChart = null;
         const tipDisplay = document.getElementById('tip-display');
         const tipDetails = document.getElementById('tip-details');
         const spinButton = document.getElementById('spin-button');
 
-        const chartOptions = {
-            chart: { type: 'line', height: '100%', toolbar: { show: false } },
-            stroke: { width: [2, 3], curve: 'smooth', dashArray: [0, 5] }, // Storico solido, Forecast tratteggiato
-            markers: { size: 0, hover: { size: 5 } },
-            tooltip: { x: { format: 'dd MMM yyyy' }, y: { formatter: val => val ? `$${val.toFixed(2)}` : '' }},
-            xaxis: { type: 'datetime' },
-            dataLabels: { enabled: false } // Rimuove le etichette che affollano il grafico
-        };
-        
+        // Carica i dati all'avvio della pagina
         fetch('roulette_tips.json?v=' + new Date().getTime())
             .then(response => response.ok ? response.json() : Promise.reject('Dati non disponibili'))
             .then(data => { if (data && data.length > 0) tips = data; })
@@ -83,22 +75,26 @@
             const seriesForecast = { name: 'Forecast AI (7 gg)', data: randomTip.forecast_data };
             seriesForecast.data.unshift(randomTip.historical_data[randomTip.historical_data.length - 1]);
 
-            // Definiamo i colori in modo esplicito qui per massima robustezza
-            const historicalColor = '#343a40'; // Grigio scuro/Nero
-            const forecastColor = '#007bff';   // Blu vibrante
-
+            // Se il grafico non è mai stato creato, lo creiamo
             if (!rouletteChart) {
-                rouletteChart = new ApexCharts(document.querySelector("#chart-container"), chartOptions);
+                const options = {
+                    series: [seriesStorico, seriesForecast],
+                    chart: { type: 'line', height: '100%', toolbar: { show: false } },
+                    colors: ['#212529', '#007bff'], // Nero per storico, Blu per forecast
+                    stroke: { width: [2, 3], curve: 'smooth', dashArray: [0, 5] },
+                    markers: { size: 0, hover: { size: 5 } },
+                    tooltip: { x: { format: 'dd MMM yy' }, y: { formatter: val => val ? `$${val.toFixed(2)}` : '' }},
+                    xaxis: { type: 'datetime' },
+                    yaxis: { labels: { formatter: val => `$${Math.round(val)}` } },
+                    legend: { show: true, position: 'top', horizontalAlign: 'left'},
+                    dataLabels: { enabled: false }
+                };
+                rouletteChart = new ApexCharts(document.querySelector("#chart-container"), options);
                 rouletteChart.render();
+            } else {
+                // Se il grafico esiste già, aggiorniamo solo i dati
+                rouletteChart.updateSeries([seriesStorico, seriesForecast]);
             }
-            
-            // Aggiorniamo sia le serie che i colori
-            rouletteChart.updateOptions({
-                series: [seriesStorico, seriesForecast],
-                colors: [historicalColor, forecastColor],
-                yaxis: { labels: { formatter: val => `$${Math.round(val)}` } },
-                legend: { show: true, position: 'top', horizontalAlign: 'left', markers: { fillColor: [historicalColor, forecastColor] } }
-            });
         });
     </script>
 </body>
