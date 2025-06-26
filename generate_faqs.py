@@ -1,7 +1,7 @@
 # generate_faqs.py - La nostra fabbrica di pagine SEO
 
 import json
-from datetime import datetime
+from datetime import datetime, date
 import os
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
