@@ -1,14 +1,14 @@
-name: Generate Daily Forecast Chart
+name: Update S&P 500 Forecast Chart
 
 on:
-  # Esegue ogni giorno alle 07:00 UTC (le 09:00 in Italia con ora legale)
+  # Esegue ogni giorno alle 07:00 UTC
   schedule:
     - cron: '0 7 * * *'
-  # Permette di eseguire il workflow manualmente dalla tab "Actions" di GitHub
+  # Permette l'avvio manuale
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-forecast:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,6 +32,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add forecast.png
-          # Committa solo se ci sono state modifiche all'immagine
-          git diff --staged --quiet || git commit -m "Auto-update forecast chart for $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "Auto-update S&P 500 forecast chart for $(date +'%Y-%m-%d')"
           git push
