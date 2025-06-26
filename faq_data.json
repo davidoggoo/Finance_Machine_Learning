@@ -1,0 +1,12 @@
+[
+  {
+    "slug": "cos-e-un-forecast-ai-per-sp500",
+    "question": "Cos'è un Forecast AI per l'S&P 500?",
+    "answer_html": "<p>Un forecast AI per l'S&P 500 è una previsione sull'andamento futuro dell'indice S&P 500 generata tramite modelli di intelligenza artificiale, come XGBoost o reti neurali. Questi modelli analizzano dati storici per identificare pattern e prevedere i movimenti di prezzo futuri.</p><ul><li><strong>Dati usati:</strong> Prezzi storici, volumi, a volte anche dati macroeconomici.</li><li><strong>Obiettivo:</strong> Fornire un'indicazione probabilistica sulla direzione del mercato.</li><li><strong>Affidabilità:</strong> Non è una garanzia, ma uno strumento statistico per supportare le decisioni.</li></ul>"
+  },
+  {
+    "slug": "come-funziona-il-mood-trader-dial",
+    "question": "Come funziona il Mood Trader Dial?",
+    "answer_html": "<p>Il nostro Mood Trader Dial misura il 'sentiment' del mercato (Paura vs. Euforia) basandosi sull'indice di volatilità VIX. Un valore alto del VIX indica alta volatilità e paura, mentre un valore basso suggerisce compiacenza o euforia nel mercato.</p><ul><li><strong>Fonte Dati:</strong> Indice di Volatilità CBOE (VIX).</li><li><strong>Interpretazione:</strong> Un 'mood' basso indica paura (potenziale opportunità di acquisto), un 'mood' alto indica euforia (potenziale rischio).</li><li><strong>Aggiornamento:</strong> I dati vengono aggiornati automaticamente per riflettere le ultime condizioni di mercato.</li></ul>"
+  }
+]
