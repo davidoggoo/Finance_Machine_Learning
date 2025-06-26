@@ -91,7 +91,7 @@
 
             if (!rouletteChart) {
                 chartOptions.series = [seriesStorico, seriesForecast];
-                chartOptions.colors = ['#6c757d', '#007bff']; // Grigio per storico, Blu per forecast
+                chartOptions.colors = ['#25292b', '#007bff']; // Grigio per storico, Blu per forecast
                 rouletteChart = new ApexCharts(document.querySelector("#chart-container"), chartOptions);
                 rouletteChart.render();
             } else {
