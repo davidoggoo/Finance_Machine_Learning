@@ -6,3 +6,4 @@ requests
 alpha-vantage
 scikit-learn
 pytrends
+lightgbm
