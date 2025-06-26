@@ -1,52 +1,83 @@
-# generate_mood.py - Versione Definitiva v3, con conversione esplicita a float
+# generate_mood.py - Versione FINALE AI-Powered
 
 import yfinance as yf
-import json
-import os
 import pandas as pd
+from xgboost import XGBRegressor
+import json
+from datetime import date, timedelta
+import warnings
 
-def get_vix_mood():
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+def generate_ai_mood_dial():
     """
-    Recupera l'ultimo valore del VIX usando yfinance, lo converte esplicitamente
-    in un numero float per massima robustezza, lo normalizza e salva il risultato.
+    Recupera i dati storici del VIX, addestra un modello XGBoost per prevedere
+    il valore del giorno successivo, e calcola sia il mood attuale che quello previsto.
     """
-    print("--- Inizio recupero dati per Mood Trader Dial (metodo yfinance v3) ---")
-    
+    print("--- Inizio processo AI per Mood Trader Dial ---")
+
     try:
+        # --- 1. Download Dati Storici del VIX ---
+        print("Fase 1: Download dati storici VIX...")
         ticker = "^VIX"
-        # Scarica solo gli ultimi giorni per efficienza
-        vix_data = yf.download(ticker, period="5d", progress=False, auto_adjust=True) 
-        
-        if vix_data.empty:
-            raise ValueError(f"Nessun dato scaricato per il ticker {ticker}")
+        vix_df = yf.download(ticker, start="2010-01-01", end=date.today(), progress=False, auto_adjust=True)
+        if vix_df.empty:
+            raise ValueError(f"Nessun dato scaricato per {ticker}")
 
-        # --- SOLUZIONE DEFINITIVA: Conversione Esplicita a Float ---
-        # .iloc[-1] restituisce l'ultimo valore. Lo convertiamo in un numero Python standard.
-        # Questo risolve il TypeError e rende il codice robusto.
-        last_vix_value = float(vix_data['Close'].iloc[-1])
-        last_day = vix_data.index[-1]
-        
-        print(f"Ultimo valore VIX recuperato: {last_vix_value:.2f} in data {last_day.date()}")
+        # --- 2. Feature Engineering ---
+        print("Fase 2: Creazione feature...")
+        vix_df.rename(columns={'Close': 'price'}, inplace=True)
+        vix_df['lag_1'] = vix_df['price'].shift(1)
+        vix_df['rolling_mean_7'] = vix_df['price'].shift(1).rolling(window=7).mean()
+        vix_df.dropna(inplace=True)
 
-        # Logica di normalizzazione (100 = Greed, 0 = Fear)
-        fear_level = max(0, min(1, (last_vix_value - 15) / (50 - 15)))
-        mood_score = 100 - (fear_level * 100)
+        # --- 3. Addestramento Modello ---
+        print("Fase 3: Addestramento modello XGBoost sul VIX...")
+        FEATURES = ['lag_1', 'rolling_mean_7']
+        TARGET = 'price'
+        X_train = vix_df[FEATURES]
+        y_train = vix_df[TARGET]
+
+        model = XGBRegressor(n_estimators=100, learning_rate=0.1, objective='reg:squarederror', random_state=42)
+        model.fit(X_train, y_train)
+        print("Modello addestrato.")
+
+        # --- 4. Calcolo Mood Attuale ---
+        latest_real_vix = y_train.iloc[-1]
+        latest_real_date = y_train.index[-1]
         
-        mood_data = {
-            "last_update": str(last_day.date()),
-            "vix_value": round(last_vix_value, 2),
-            "mood_score": round(mood_score)
+        def calculate_mood_score(vix_value):
+            fear_level = max(0, min(1, (vix_value - 15) / (50 - 15)))
+            return 100 - (fear_level * 100)
+
+        current_mood_score = calculate_mood_score(latest_real_vix)
+        print(f"Mood attuale calcolato: {current_mood_score:.0f}/100")
+
+        # --- 5. Previsione AI Mood Domani ---
+        print("Fase 5: Previsione VIX per domani...")
+        features_for_tomorrow = vix_df[FEATURES].iloc[-1:].copy()
+        
+        predicted_vix = model.predict(features_for_tomorrow)[0]
+        predicted_mood_score = calculate_mood_score(predicted_vix)
+        print(f"Mood previsto dall'AI: {predicted_mood_score:.0f}/100")
+
+        # --- 6. Salvataggio Dati ---
+        output_data = {
+            "last_update": str(latest_real_date.date()),
+            "current_vix": round(float(latest_real_vix), 2),
+            "current_mood_score": round(current_mood_score),
+            "predicted_vix": round(float(predicted_vix), 2),
+            "predicted_mood_score": round(predicted_mood_score)
         }
-        
-        # Salva i dati in un file JSON
+
         with open('mood.json', 'w') as f:
-            json.dump(mood_data, f)
+            json.dump(output_data, f)
             
-        print(f"File 'mood.json' generato con successo. Punteggio: {mood_data['mood_score']}")
+        print("File 'mood.json' con dati attuali e previsti generato con successo.")
 
     except Exception as e:
-        print(f"ERRORE CRITICO durante la generazione del mood: {e}")
-        raise e # Fai fallire il workflow per ricevere una notifica
+        print(f"ERRORE CRITICO: {e}")
+        raise e
 
 if __name__ == '__main__':
-    get_vix_mood()
+    generate_ai_mood_dial()
