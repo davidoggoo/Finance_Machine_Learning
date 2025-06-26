@@ -13,7 +13,7 @@ def get_vix_mood():
 
     try:
         ts = TimeSeries(key=api_key, output_format='pandas')
-        data, meta_data = ts.get_daily(symbol='^VIX')
+        data, meta_data = ts.get_daily(symbol='VIX')
 
         last_vix_value = data['4. close'].iloc[0]
         last_day = data.index[0]
