@@ -1,1 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Trader Dial | Progetto Finanza AI</title>
+    <meta name="description" content="Un indicatore Fear & Greed basato sull'indice di volatilità VIX, aggiornato settimanalmente.">
+    <link rel="stylesheet" href="style.css"> <style>
+         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+         header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
+         nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
+         nav a.active { color: #007bff; font-weight: bold; }
+         main { text-align: center; padding: 2rem; }
+        .gauge { width: 300px; height: 150px; border-radius: 150px 150px 0 0; background-image: conic-gradient(from -90deg, red, yellow, limegreen); position: relative; margin: 2rem auto; overflow: hidden; border: 5px solid #ccc; }
+        .gauge::before { content: ''; position: absolute; background: #f8f9fa; width: 260px; height: 130px; border-radius: 130px 130px 0 0; left: 20px; bottom: 0; }
+        .needle { width: 4px; height: 140px; background: #333; position: absolute; left: 148px; bottom: 0; transform-origin: bottom center; transition: transform 1s ease-in-out; border-radius: 5px 5px 0 0; }
+        .labels { display: flex; justify-content: space-between; width: 310px; margin: -1.5rem auto 0 auto; font-weight: bold; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+          <a href="/Finance_Machine_Learning/mood-dial.html" class="active">Mood Trader Dial</a>
+        </nav>
+    </header>
 
+    <main>
+        <h1>Trader Mood: Fear vs Greed</h1>
+        <p>Un indicatore basato sull'ultimo valore dell'indice di volatilità VIX.</p>
+        <div class="gauge">
+            <div id="needle" class="needle"></div>
+        </div>
+        <div class="labels"><span>FEAR</span><span>GREED</span></div>
+        <p id="info" style="color: #6c757d; font-size: 0.9em;">Recupero dati in corso...</p>
+    </main>
+
+    <script>
+        fetch('mood.json?v=' + new Date().getTime()) // L'aggiunta del timestamp forza il browser a non usare la cache
+            .then(response => {
+                if (!response.ok) { throw new Error('Network response was not ok'); }
+                return response.json();
+            })
+            .then(data => {
+                const moodScore = data.mood_score;
+                const degrees = -90 + (moodScore * 1.8);
+
+                document.getElementById('needle').style.transform = `rotate(${degrees}deg)`;
+                document.getElementById('info').innerText = `Ultimo aggiornamento: ${data.last_update} | Valore VIX: ${data.vix_value} | Punteggio: ${moodScore}/100`;
+            })
+            .catch(error => {
+                console.error('Errore nel caricare mood.json:', error);
+                document.getElementById('info').innerText = 'Dati non ancora disponibili. L\'aggiornamento automatico è in corso.';
+            });
+    </script>
+</body>
+</html>
