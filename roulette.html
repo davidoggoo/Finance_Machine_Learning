@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Trade Roulette | Progetto Finanza AI</title>
-    <meta name="description" content="Gira la ruota e ottieni un tip di trading con grafico generato dall'AI su un ticker casuale.">
+    <meta name="description" content="Gira la ruota e ottieni un tip di trading con grafico e previsione AI su un ticker casuale.">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
+        /* Stili CSS (rimangono identici a prima) */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
         nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
@@ -24,17 +25,17 @@
 <body>
     <header>
         <nav>
-            <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
-            <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
-            <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
-            <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
-            <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
+          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+          <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
+          <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
+          <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
         </nav>
     </header>
 
     <main>
         <h1>AI Trade Roulette 🎰</h1>
-        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI, completa di grafico.</p>
+        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI, completa di grafico e forecast.</p>
         <div class="roulette-container">
             <div id="chart-container"></div>
             <div class="tip-text">
@@ -46,6 +47,7 @@
     </main>
 
     <script>
+        // --- SCRIPT JAVASCRIPT POTENZIATO ---
         let tips = [];
         let rouletteChart = null;
         const tipDisplay = document.getElementById('tip-display');
@@ -53,12 +55,14 @@
         const spinButton = document.getElementById('spin-button');
 
         const chartOptions = {
-            chart: { type: 'area', height: '100%', sparkline: { enabled: true }},
-            stroke: { curve: 'smooth', width: 2 },
-            fill: { type: 'gradient', gradient: { opacityFrom: 0.6, opacityTo: 0.05, }},
-            markers: { size: 0 },
-            tooltip: { enabled: true, x: { format: 'dd MMM yyyy' }, y: { formatter: val => `$${val}`}},
-            xaxis: { type: 'datetime' },
+            chart: { type: 'area', height: '100%', animations: { easing: 'easeOutQuad', speed: 500 }},
+            stroke: { width: [2, 3], curve: 'smooth', dashArray: [0, 5] }, // Storico solido, Forecast tratteggiato
+            fill: { type: 'gradient', gradient: { opacityFrom: 0.4, opacityTo: 0.05 }},
+            markers: { size: [0, 5], hover: { size: 7 } }, // Nessun marker per storico, marker visibile per forecast
+            tooltip: { enabled: true, x: { format: 'dd MMM yyyy' }, y: { formatter: val => `$${val.toFixed(2)}`}},
+            xaxis: { type: 'datetime', labels: { show: false } },
+            yaxis: { labels: { show: false } },
+            legend: { show: false }
         };
         
         fetch('roulette_tips.json?v=' + new Date().getTime())
@@ -71,23 +75,34 @@
             
             const randomTip = tips[Math.floor(Math.random() * tips.length)];
             let directionEmoji = '⏺️';
+            const color = randomTip.prediction_direction === 'UP' ? '#2ECC40' : (randomTip.prediction_direction === 'DOWN' ? '#FF4136' : '#FFDC00');
             if (randomTip.prediction_direction === 'UP') directionEmoji = '🔼';
             if (randomTip.prediction_direction === 'DOWN') directionEmoji = '🔽';
             
             tipDisplay.innerHTML = `${randomTip.ticker} &rarr; <b>${randomTip.prediction_direction}</b> ${directionEmoji}`;
             tipDetails.innerText = randomTip.details;
 
-            const seriesData = [{ name: 'Prezzo', data: randomTip.chart_data }];
-            const color = randomTip.prediction_direction === 'UP' ? '#2ECC40' : (randomTip.prediction_direction === 'DOWN' ? '#FF4136' : '#FFDC00');
+            // Prepara le due serie di dati per il grafico
+            const seriesStorico = { name: 'Storico', data: randomTip.chart_data };
+            
+            const lastHistoricalPoint = randomTip.chart_data[randomTip.chart_data.length - 1];
+            const nextDayTimestamp = lastHistoricalPoint[0] + (24 * 60 * 60 * 1000); // Aggiunge 24 ore in millisecondi
+            const seriesForecast = { 
+                name: 'Forecast AI', 
+                data: [
+                    [lastHistoricalPoint[0], lastHistoricalPoint[1]], // Punto di partenza (ultimo storico)
+                    [nextDayTimestamp, randomTip.predicted_price]  // Punto di arrivo (previsione)
+                ]
+            };
 
             if (!rouletteChart) {
-                chartOptions.series = seriesData;
-                chartOptions.colors = [color];
+                chartOptions.series = [seriesStorico, seriesForecast];
+                chartOptions.colors = [color, '#007bff']; // Colore storico basato su trend, forecast blu
                 rouletteChart = new ApexCharts(document.querySelector("#chart-container"), chartOptions);
                 rouletteChart.render();
             } else {
-                rouletteChart.updateOptions({ colors: [color] });
-                rouletteChart.updateSeries(seriesData);
+                rouletteChart.updateOptions({ colors: [color, '#007bff'] });
+                rouletteChart.updateSeries([seriesStorico, seriesForecast]);
             }
         });
     </script>
