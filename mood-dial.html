@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mood Trader Dial | Progetto Finanza AI</title>
-    <meta name="description" content="Un indicatore Fear & Greed basato sull'indice di volatilità VIX, aggiornato settimanalmente.">
-    <link rel="stylesheet" href="style.css"> <style>
-         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
-         header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
-         nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
-         nav a.active { color: #007bff; font-weight: bold; }
-         main { text-align: center; padding: 2rem; }
-        .gauge { width: 300px; height: 150px; border-radius: 150px 150px 0 0; background-image: conic-gradient(from -90deg, red, yellow, limegreen); position: relative; margin: 2rem auto; overflow: hidden; border: 5px solid #ccc; }
-        .gauge::before { content: ''; position: absolute; background: #f8f9fa; width: 260px; height: 130px; border-radius: 130px 130px 0 0; left: 20px; bottom: 0; }
-        .needle { width: 4px; height: 140px; background: #333; position: absolute; left: 148px; bottom: 0; transform-origin: bottom center; transition: transform 1s ease-in-out; border-radius: 5px 5px 0 0; }
+    <title>AI Mood Dial - Previsione Fear & Greed</title>
+    <meta name="description" content="Un indicatore Fear & Greed con previsione AI per il giorno successivo, basata sull'indice di volatilità VIX.">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
+        nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
+        nav a.active { color: #007bff; font-weight: bold; }
+        main { text-align: center; padding: 2rem; }
+        .gauge-container { position: relative; width: 300px; height: 150px; margin: 2rem auto; }
+        .gauge-bg { width: 300px; height: 150px; border-radius: 150px 150px 0 0; background-image: conic-gradient(from -90deg, #d9534f, #f0ad4e, #5cb85c); position: relative; border: 5px solid #ccc; box-sizing: border-box; }
+        .gauge-bg::before { content: ''; position: absolute; background: #f8f9fa; width: 260px; height: 130px; border-radius: 130px 130px 0 0; left: 15px; bottom: 0; }
+        .needle { width: 4px; height: 140px; position: absolute; left: 148px; bottom: 0; transform-origin: bottom center; transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); border-radius: 5px 5px 0 0; }
+        #current_needle { background: #333; z-index: 10; }
+        #predicted_needle { background: #007bff; opacity: 0.6; z-index: 9; }
         .labels { display: flex; justify-content: space-between; width: 310px; margin: -1.5rem auto 0 auto; font-weight: bold; color: #666; }
+        .info-box { margin-top: 2rem; }
+        .legend { display: inline-flex; align-items: center; margin: 0 1rem; }
+        .legend-box { width: 15px; height: 15px; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -26,27 +32,44 @@
     </header>
 
     <main>
-        <h1>Trader Mood: Fear vs Greed</h1>
-        <p>Un indicatore basato sull'ultimo valore dell'indice di volatilità VIX.</p>
-        <div class="gauge">
-            <div id="needle" class="needle"></div>
+        <h1>AI Trader Mood: Oggi vs. Domani</h1>
+        <p>Confronto tra il sentiment di mercato attuale e la previsione del nostro modello AI per il prossimo giorno.</p>
+        <div class="gauge-container">
+            <div class="gauge-bg"></div>
+            <div id="predicted_needle" class="needle"></div>
+            <div id="current_needle" class="needle"></div>
         </div>
-        <div class="labels"><span>FEAR</span><span>GREED</span></div>
-        <p id="info" style="color: #6c757d; font-size: 0.9em;">Recupero dati in corso...</p>
+        <div class="labels"><span>EXTREME FEAR</span><span>EXTREME GREED</span></div>
+        
+        <div class="info-box">
+            <div class="legend">
+                <div class="legend-box" style="background:#333;"></div>
+                <span>Mood Attuale</span>
+            </div>
+            <div class="legend">
+                <div class="legend-box" style="background:#007bff; opacity: 0.6;"></div>
+                <span>Previsione AI Domani</span>
+            </div>
+            <p id="info" style="color: #6c757d; font-size: 0.9em; margin-top: 1rem;">Recupero dati in corso...</p>
+        </div>
     </main>
 
     <script>
-        fetch('mood.json?v=' + new Date().getTime()) // L'aggiunta del timestamp forza il browser a non usare la cache
-            .then(response => {
-                if (!response.ok) { throw new Error('Network response was not ok'); }
-                return response.json();
-            })
+        fetch('mood.json?v=' + new Date().getTime())
+            .then(response => response.ok ? response.json() : Promise.reject('Network response was not ok'))
             .then(data => {
-                const moodScore = data.mood_score;
-                const degrees = -90 + (moodScore * 1.8);
+                const mapScoreToDegrees = score => -90 + (score * 1.8);
 
-                document.getElementById('needle').style.transform = `rotate(${degrees}deg)`;
-                document.getElementById('info').innerText = `Ultimo aggiornamento: ${data.last_update} | Valore VIX: ${data.vix_value} | Punteggio: ${moodScore}/100`;
+                const currentDegrees = mapScoreToDegrees(data.current_mood_score);
+                const predictedDegrees = mapScoreToDegrees(data.predicted_mood_score);
+                
+                document.getElementById('current_needle').style.transform = `rotate(${currentDegrees}deg)`;
+                document.getElementById('predicted_needle').style.transform = `rotate(${predictedDegrees}deg)`;
+                
+                document.getElementById('info').innerHTML = 
+                    `Ultimo Aggiornamento: <b>${data.last_update}</b><br>` +
+                    `Mood Attuale: <b>${data.current_mood_score}/100</b> (basato su VIX a ${data.current_vix})<br>` +
+                    `Previsione AI Domani: <b>${data.predicted_mood_score}/100</b> (basato su VIX previsto a ${data.predicted_vix})`;
             })
             .catch(error => {
                 console.error('Errore nel caricare mood.json:', error);
