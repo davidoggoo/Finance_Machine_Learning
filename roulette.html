@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Trade Roulette | Progetto Finanza AI</title>
-    <meta name="description" content="Gira la ruota e ottieni un tip di trading con grafico e previsione AI su un ticker casuale.">
+    <meta name="description" content="Gira la ruota e ottieni un tip di trading con grafico e previsione AI a 7 giorni su un ticker casuale.">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
-        /* Stili CSS (rimangono identici a prima) */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
         nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
         nav a.active { color: #007bff; font-weight: bold; }
         main { text-align: center; padding: 2rem; }
-        .roulette-container { min-height: 450px; border: 2px dashed #e0e0e0; border-radius: 10px; padding: 2rem; margin: 2rem auto; max-width: 800px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .roulette-container { min-height: 450px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 2rem; margin: 2rem auto; max-width: 800px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         #chart-container { width: 100%; height: 280px; }
         .tip-text { margin-top: 1.5rem; }
         #tip-display { font-size: 1.8rem; font-weight: bold; }
@@ -25,17 +24,17 @@
 <body>
     <header>
         <nav>
-          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
-          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
-          <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
-          <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
-          <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
+            <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+            <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+            <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
+            <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
+            <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
         </nav>
     </header>
 
     <main>
         <h1>AI Trade Roulette 🎰</h1>
-        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI, completa di grafico e forecast.</p>
+        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI, completa di grafico e forecast a 7 giorni.</p>
         <div class="roulette-container">
             <div id="chart-container"></div>
             <div class="tip-text">
@@ -47,7 +46,7 @@
     </main>
 
     <script>
-        // --- SCRIPT JAVASCRIPT POTENZIATO ---
+        // --- SCRIPT JAVASCRIPT FINALE ---
         let tips = [];
         let rouletteChart = null;
         const tipDisplay = document.getElementById('tip-display');
@@ -55,14 +54,14 @@
         const spinButton = document.getElementById('spin-button');
 
         const chartOptions = {
-            chart: { type: 'area', height: '100%', animations: { easing: 'easeOutQuad', speed: 500 }},
-            stroke: { width: [2, 3], curve: 'smooth', dashArray: [0, 5] }, // Storico solido, Forecast tratteggiato
-            fill: { type: 'gradient', gradient: { opacityFrom: 0.4, opacityTo: 0.05 }},
-            markers: { size: [0, 5], hover: { size: 7 } }, // Nessun marker per storico, marker visibile per forecast
-            tooltip: { enabled: true, x: { format: 'dd MMM yyyy' }, y: { formatter: val => `$${val.toFixed(2)}`}},
-            xaxis: { type: 'datetime', labels: { show: false } },
-            yaxis: { labels: { show: false } },
-            legend: { show: false }
+            chart: { type: 'line', height: '100%', toolbar: { show: false } },
+            stroke: { width: [3, 4], curve: 'smooth', dashArray: [0, 8] }, // Storico solido, Forecast tratteggiato
+            fill: { type: 'gradient', gradient: { shade: 'light', type: "vertical", opacityFrom: 0.4, opacityTo: 0.05 }},
+            markers: { size: 0, hover: { size: 5 } },
+            tooltip: { x: { format: 'dd MMM yyyy' }, y: { formatter: val => `$${val.toFixed(2)}`}},
+            xaxis: { type: 'datetime', labels: { style: { colors: '#888' } } },
+            yaxis: { labels: { style: { colors: '#888' }, formatter: val => `$${Math.round(val)}` } },
+            legend: { show: true, position: 'top', horizontalAlign: 'left' }
         };
         
         fetch('roulette_tips.json?v=' + new Date().getTime())
@@ -75,33 +74,24 @@
             
             const randomTip = tips[Math.floor(Math.random() * tips.length)];
             let directionEmoji = '⏺️';
-            const color = randomTip.prediction_direction === 'UP' ? '#2ECC40' : (randomTip.prediction_direction === 'DOWN' ? '#FF4136' : '#FFDC00');
             if (randomTip.prediction_direction === 'UP') directionEmoji = '🔼';
             if (randomTip.prediction_direction === 'DOWN') directionEmoji = '🔽';
             
             tipDisplay.innerHTML = `${randomTip.ticker} &rarr; <b>${randomTip.prediction_direction}</b> ${directionEmoji}`;
             tipDetails.innerText = randomTip.details;
 
-            // Prepara le due serie di dati per il grafico
-            const seriesStorico = { name: 'Storico', data: randomTip.chart_data };
-            
-            const lastHistoricalPoint = randomTip.chart_data[randomTip.chart_data.length - 1];
-            const nextDayTimestamp = lastHistoricalPoint[0] + (24 * 60 * 60 * 1000); // Aggiunge 24 ore in millisecondi
-            const seriesForecast = { 
-                name: 'Forecast AI', 
-                data: [
-                    [lastHistoricalPoint[0], lastHistoricalPoint[1]], // Punto di partenza (ultimo storico)
-                    [nextDayTimestamp, randomTip.predicted_price]  // Punto di arrivo (previsione)
-                ]
-            };
+            const seriesStorico = { name: 'Storico (60 gg)', data: randomTip.historical_data };
+            const seriesForecast = { name: 'Forecast AI (7 gg)', data: randomTip.forecast_data };
+
+            // Aggiungi l'ultimo punto storico al forecast per una linea continua
+            seriesForecast.data.unshift(randomTip.historical_data[randomTip.historical_data.length - 1]);
 
             if (!rouletteChart) {
                 chartOptions.series = [seriesStorico, seriesForecast];
-                chartOptions.colors = [color, '#007bff']; // Colore storico basato su trend, forecast blu
+                chartOptions.colors = ['#4A5568', '#4299E1']; // Grigio scuro per storico, Blu per forecast
                 rouletteChart = new ApexCharts(document.querySelector("#chart-container"), chartOptions);
                 rouletteChart.render();
             } else {
-                rouletteChart.updateOptions({ colors: [color, '#007bff'] });
                 rouletteChart.updateSeries([seriesStorico, seriesForecast]);
             }
         });
