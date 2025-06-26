@@ -1,7 +1,74 @@
-<nav>
-  <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
-  <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
-  <a href="/Finance_Machine_Learning/roulette.html">AI Trade Roulette</a>
-  <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
-  <a href="/Finance_Machine_Learning/gallery.html" class="active">Galleria Grafici</a>
-</nav>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galleria Grafici | Progetto Finanza AI</title>
+    <meta name="description" content="Una galleria di grafici e analisi finanziarie generate automaticamente dalla nostra intelligenza artificiale.">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
+        nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
+        nav a.active { color: #007bff; font-weight: bold; }
+        main { padding: 2rem; max-width: 1200px; margin: auto; }
+        h1 { text-align: center; margin-bottom: 2rem; }
+        #gallery-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; }
+        figure { margin: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        figure img { width: 100%; display: block; }
+        figcaption { padding: 1rem; font-size: 0.9em; text-align: center; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+          <a href="/Finance_Machine_Learning/roulette.html">AI Trade Roulette</a>
+          <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
+          <a href="/Finance_Machine_Learning/gallery.html" class="active">Galleria Grafici</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Galleria Grafici Giornalieri</h1>
+        <div id="gallery-container">
+            <p>Caricamento grafici...</p>
+        </div>
+    </main>
+
+    <script>
+        fetch('charts_list.json?v=' + new Date().getTime()) // Aggiungo un timestamp per forzare il refresh
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('File charts_list.json non trovato o errore di rete.');
+                }
+                return response.json();
+            })
+            .then(charts => {
+                const container = document.getElementById('gallery-container');
+                container.innerHTML = ''; // Pulisce il messaggio di caricamento
+                
+                if (charts && charts.length > 0) {
+                    charts.forEach(chart => {
+                        const figure = document.createElement('figure');
+                        const img = document.createElement('img');
+                        img.src = chart.path;
+                        img.alt = chart.description;
+                        const figcaption = document.createElement('figcaption');
+                        figcaption.textContent = chart.title;
+                        
+                        figure.appendChild(img);
+                        figure.appendChild(figcaption);
+                        container.appendChild(figure);
+                    });
+                } else {
+                    container.innerHTML = '<p>Nessun grafico da mostrare al momento. Torna più tardi!</p>';
+                }
+            })
+            .catch(error => {
+                console.error("Errore nel caricare la galleria:", error);
+                document.getElementById('gallery-container').innerHTML = '<p>Impossibile caricare la galleria. Controlla la console per maggiori dettagli.</p>';
+            });
+    </script>
+</body>
+</html>
