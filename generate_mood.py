@@ -6,7 +6,7 @@ import pandas as pd
 
 def get_vix_mood():
     print("--- Inizio recupero dati per Mood Trader Dial ---")
-    api_key = os.getenv('RYBBLMHYLWA6HD23')
+    api_key = os.getenv('ALPHA_VANTAGE_KEY')
     if not api_key:
         print("ERRORE: API Key di Alpha Vantage non trovata.")
         return
