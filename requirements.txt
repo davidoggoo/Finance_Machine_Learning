@@ -2,3 +2,5 @@ xgboost
 pandas_datareader 
 yfinance
 matplotlib
+requests
+alpha-vantage
