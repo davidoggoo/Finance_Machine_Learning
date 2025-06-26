@@ -46,7 +46,7 @@
     </main>
 
     <script>
-        // --- SCRIPT JAVASCRIPT FINALE E CORRETTO ---
+        // --- SCRIPT JAVASCRIPT FINALE CON STILE ROBUSTO ---
         let tips = [];
         let rouletteChart = null;
         const tipDisplay = document.getElementById('tip-display');
@@ -54,16 +54,12 @@
         const spinButton = document.getElementById('spin-button');
 
         const chartOptions = {
-            chart: { type: 'line', height: '100%', toolbar: { show: true, tools: { download: false } } },
-            stroke: { width: [2, 2.5], curve: 'smooth', dashArray: [0, 5] },
-            fill: { type: 'gradient', gradient: { shade: 'light', type: "vertical", opacityFrom: 0.4, opacityTo: 0.05 }},
+            chart: { type: 'line', height: '100%', toolbar: { show: false } },
+            stroke: { width: [2, 3], curve: 'smooth', dashArray: [0, 5] }, // Storico solido, Forecast tratteggiato
             markers: { size: 0, hover: { size: 5 } },
-            tooltip: { x: { format: 'dd MMM yyyy' }, y: { formatter: val => `$${val.toFixed(2)}`}},
+            tooltip: { x: { format: 'dd MMM yyyy' }, y: { formatter: val => val ? `$${val.toFixed(2)}` : '' }},
             xaxis: { type: 'datetime' },
-            yaxis: { labels: { formatter: val => `$${Math.round(val)}` } },
-            legend: { show: true, position: 'top', horizontalAlign: 'left' },
-            // SOLUZIONE 1: Rimuove le etichette che affollano il grafico
-            dataLabels: { enabled: false } 
+            dataLabels: { enabled: false } // Rimuove le etichette che affollano il grafico
         };
         
         fetch('roulette_tips.json?v=' + new Date().getTime())
@@ -82,21 +78,27 @@
             tipDisplay.innerHTML = `${randomTip.ticker} &rarr; <b>${randomTip.prediction_direction}</b> ${directionEmoji}`;
             tipDetails.innerText = randomTip.details;
 
-            // SOLUZIONE 2 e 3: Prepara due serie di dati (storico e forecast a 7gg) e le "cuce"
+            // Prepara le due serie di dati per il grafico
             const seriesStorico = { name: 'Storico (60 gg)', data: randomTip.historical_data };
             const seriesForecast = { name: 'Forecast AI (7 gg)', data: randomTip.forecast_data };
-
-            // Aggiunge l'ultimo punto storico al forecast per una linea continua (elimina il "buco")
             seriesForecast.data.unshift(randomTip.historical_data[randomTip.historical_data.length - 1]);
 
+            // Definiamo i colori in modo esplicito qui per massima robustezza
+            const historicalColor = '#343a40'; // Grigio scuro/Nero
+            const forecastColor = '#007bff';   // Blu vibrante
+
             if (!rouletteChart) {
-                chartOptions.series = [seriesStorico, seriesForecast];
-                chartOptions.colors = ['#25292b', '#007bff']; // Grigio per storico, Blu per forecast
                 rouletteChart = new ApexCharts(document.querySelector("#chart-container"), chartOptions);
                 rouletteChart.render();
-            } else {
-                rouletteChart.updateSeries([seriesStorico, seriesForecast]);
             }
+            
+            // Aggiorniamo sia le serie che i colori
+            rouletteChart.updateOptions({
+                series: [seriesStorico, seriesForecast],
+                colors: [historicalColor, forecastColor],
+                yaxis: { labels: { formatter: val => `$${Math.round(val)}` } },
+                legend: { show: true, position: 'top', horizontalAlign: 'left', markers: { fillColor: [historicalColor, forecastColor] } }
+            });
         });
     </script>
 </body>
