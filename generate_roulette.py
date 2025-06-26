@@ -85,7 +85,7 @@ def get_prediction_for_ticker(ticker: str, forecast_horizon: int = 7) -> dict:
 def generate_roulette_tips():
     print("--- Inizio generazione tips estesi per AI Trade Roulette ---")
     ticker_list = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META']
-    all_tips = [tip for ticker in ticker_list if (tip := get_prediction_for_ticker()) is not None]
+    all_tips = [tip for ticker in ticker_list if (tip := get_prediction_for_ticker(ticker)) is not None]
     
     if not all_tips:
         raise RuntimeError("Nessun tip generato con successo.")
