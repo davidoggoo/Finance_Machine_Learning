@@ -34,6 +34,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add forecast.png
+          git add .
           git diff --staged --quiet || git commit -m "Auto-update S&P 500 forecast chart for $(date +'%Y-%m-%d')"
           git push
