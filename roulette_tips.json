@@ -1,0 +1,37 @@
+[
+  {
+    "ticker": "AAPL",
+    "prediction_direction": "FLAT",
+    "details": "Prezzo attuale: 200.14. Previsione AI: 200.89 (+0.37%)"
+  },
+  {
+    "ticker": "MSFT",
+    "prediction_direction": "DOWN",
+    "details": "Prezzo attuale: 494.24. Previsione AI: 490.98 (-0.66%)"
+  },
+  {
+    "ticker": "GOOGL",
+    "prediction_direction": "DOWN",
+    "details": "Prezzo attuale: 172.47. Previsione AI: 171.07 (-0.81%)"
+  },
+  {
+    "ticker": "AMZN",
+    "prediction_direction": "DOWN",
+    "details": "Prezzo attuale: 215.88. Previsione AI: 214.24 (-0.76%)"
+  },
+  {
+    "ticker": "TSLA",
+    "prediction_direction": "FLAT",
+    "details": "Prezzo attuale: 329.05. Previsione AI: 327.70 (-0.41%)"
+  },
+  {
+    "ticker": "NVDA",
+    "prediction_direction": "DOWN",
+    "details": "Prezzo attuale: 155.23. Previsione AI: 153.73 (-0.97%)"
+  },
+  {
+    "ticker": "META",
+    "prediction_direction": "DOWN",
+    "details": "Prezzo attuale: 722.35. Previsione AI: 715.99 (-0.88%)"
+  }
+]
