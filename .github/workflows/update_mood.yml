@@ -1,7 +1,6 @@
 name: Update Weekly Trader Mood
 
 on:
-  # Esegue ogni Lunedì alle 08:00 UTC
   schedule:
     - cron: '0 8 * * 1'
   workflow_dispatch:
@@ -22,8 +21,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run script to generate mood.json
-        env:
-          ALPHA_VANTAGE_KEY: ${{ secrets.ALPHA_VANTAGE_KEY }}
+        # Non serve più la variabile d'ambiente con la chiave API
         run: python generate_mood.py
       - name: Commit and push mood.json
         run: |
