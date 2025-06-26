@@ -4,26 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Trade Roulette | Progetto Finanza AI</title>
-    <meta name="description" content="Gira la ruota e ottieni un tip di trading generato dall'AI su un ticker casuale.">
+    <meta name="description" content="Gira la ruota e ottieni un tip di trading con grafico generato dall'AI su un ticker casuale.">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
         nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
         nav a.active { color: #007bff; font-weight: bold; }
         main { text-align: center; padding: 2rem; }
-        .roulette-container { min-height: 200px; border: 2px dashed #ccc; border-radius: 10px; padding: 2rem; margin: 2rem auto; max-width: 600px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #tip-display { font-size: 1.5rem; font-weight: bold; transition: opacity 0.3s ease-in-out; }
+        .roulette-container { min-height: 450px; border: 2px dashed #e0e0e0; border-radius: 10px; padding: 2rem; margin: 2rem auto; max-width: 800px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        #chart-container { width: 100%; height: 280px; }
+        .tip-text { margin-top: 1.5rem; }
+        #tip-display { font-size: 1.8rem; font-weight: bold; }
         #tip-details { font-size: 1rem; color: #666; margin-top: 0.5rem; }
-        #spin-button { font-size: 1.2rem; padding: 1rem 2rem; margin-top: 2rem; cursor: pointer; border-radius: 8px; border: none; background-color: #007bff; color: white; font-weight: bold; }
+        #spin-button { font-size: 1.2rem; padding: 1rem 2rem; margin-top: 2rem; cursor: pointer; border-radius: 8px; border: none; background-color: #007bff; color: white; font-weight: bold; transition: background-color 0.2s; }
         #spin-button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
     <header>
         <nav>
-          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
-          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
-          <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
+            <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+            <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+            <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
             <a href="/Finance_Machine_Learning/quiz.html">Flash Quiz</a>
             <a href="/Finance_Machine_Learning/gallery.html">Galleria Grafici</a>
         </nav>
@@ -31,54 +34,61 @@
 
     <main>
         <h1>AI Trade Roulette 🎰</h1>
-        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI.</p>
+        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI, completa di grafico.</p>
         <div class="roulette-container">
-            <div id="tip-display">Pronto a girare la ruota?</div>
-            <p id="tip-details"></p>
+            <div id="chart-container"></div>
+            <div class="tip-text">
+                <div id="tip-display">Pronto a girare la ruota?</div>
+                <p id="tip-details"></p>
+            </div>
         </div>
         <button id="spin-button">Gira la Ruota!</button>
     </main>
 
     <script>
         let tips = [];
+        let rouletteChart = null;
         const tipDisplay = document.getElementById('tip-display');
         const tipDetails = document.getElementById('tip-details');
         const spinButton = document.getElementById('spin-button');
 
-        // Carica i tips una sola volta all'avvio
+        const chartOptions = {
+            chart: { type: 'area', height: '100%', sparkline: { enabled: true }},
+            stroke: { curve: 'smooth', width: 2 },
+            fill: { type: 'gradient', gradient: { opacityFrom: 0.6, opacityTo: 0.05, }},
+            markers: { size: 0 },
+            tooltip: { enabled: true, x: { format: 'dd MMM yyyy' }, y: { formatter: val => `$${val}`}},
+            xaxis: { type: 'datetime' },
+        };
+        
         fetch('roulette_tips.json?v=' + new Date().getTime())
             .then(response => response.ok ? response.json() : Promise.reject('Dati non disponibili'))
-            .then(data => {
-                if (data && data.length > 0) {
-                    tips = data;
-                } else {
-                    tipDisplay.innerText = 'Nessun tip disponibile al momento.';
-                }
-            })
-            .catch(error => {
-                console.error('Errore:', error);
-                tipDisplay.innerText = 'Impossibile caricare i dati della roulette.';
-            });
+            .then(data => { if (data && data.length > 0) tips = data; })
+            .catch(error => { tipDisplay.innerText = 'Impossibile caricare i dati della roulette.'; });
 
         spinButton.addEventListener('click', () => {
             if (tips.length === 0) return;
+            
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            let directionEmoji = '⏺️';
+            if (randomTip.prediction_direction === 'UP') directionEmoji = '🔼';
+            if (randomTip.prediction_direction === 'DOWN') directionEmoji = '🔽';
+            
+            tipDisplay.innerHTML = `${randomTip.ticker} &rarr; <b>${randomTip.prediction_direction}</b> ${directionEmoji}`;
+            tipDetails.innerText = randomTip.details;
 
-            // Effetto visivo
-            tipDisplay.style.opacity = 0;
-            tipDetails.style.opacity = 0;
+            const seriesData = [{ name: 'Prezzo', data: randomTip.chart_data }];
+            const color = randomTip.prediction_direction === 'UP' ? '#2ECC40' : (randomTip.prediction_direction === 'DOWN' ? '#FF4136' : '#FFDC00');
 
-            setTimeout(() => {
-                const randomTip = tips[Math.floor(Math.random() * tips.length)];
-                let directionEmoji = '⏺️';
-                if (randomTip.prediction_direction === 'UP') directionEmoji = '🔼';
-                if (randomTip.prediction_direction === 'DOWN') directionEmoji = '🔽';
-                
-                tipDisplay.innerHTML = `${randomTip.ticker} &rarr; <b>${randomTip.prediction_direction}</b> ${directionEmoji}`;
-                tipDetails.innerText = randomTip.details;
-
-                tipDisplay.style.opacity = 1;
-                tipDetails.style.opacity = 1;
-            }, 300);
+            if (!rouletteChart) {
+                chartOptions.series = seriesData;
+                chartOptions.colors = [color];
+                rouletteChart = new ApexCharts(document.querySelector("#chart-container"), chartOptions);
+                rouletteChart.render();
+            } else {
+                rouletteChart.updateOptions({ colors: [color] });
+                rouletteChart.updateSeries(seriesData);
+            }
         });
     </script>
 </body>
