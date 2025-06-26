@@ -4,3 +4,4 @@ yfinance
 matplotlib
 requests
 alpha-vantage
+scikit-learn
