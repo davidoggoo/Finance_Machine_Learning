@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Quiz: Indovina il Forecast | Progetto Finanza AI</title>
+    <meta name="description" content="Mettiti alla prova: indovina la direzione del nostro forecast AI per l'S&P 500 e confronta la tua previsione con quella degli altri utenti.">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
+        nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
+        nav a.active { color: #007bff; font-weight: bold; }
+        main { text-align: center; padding: 2rem; }
+        img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 1rem auto; max-width: 800px; }
+        .quiz-container { margin-top: 2rem; }
+        .vote-buttons button { font-size: 1.5rem; padding: 1rem; margin: 0.5rem; cursor: pointer; border: 2px solid transparent; border-radius: 8px; min-width: 120px;}
+        .btn-up { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .btn-flat { background-color: #e2e3e5; border-color: #d6d8db; color: #383d41; }
+        .btn-down { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .social-proof { margin-top: 2rem; padding: 1rem; background-color: #e9ecef; border-radius: 8px; max-width: 600px; margin-left: auto; margin-right: auto;}
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+          <a href="/Finance_Machine_Learning/roulette.html">AI Trade Roulette</a>
+          <a href="/Finance_Machine_Learning/quiz.html" class="active">Flash Quiz</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Flash Quiz ❓</h1>
+        <p>Guarda il nostro ultimo forecast AI per l'S&P 500. Secondo te, la previsione è corretta?</p>
+        <img src="forecast.png" alt="Grafico forecast AI per S&P 500">
+
+        <div class="quiz-container">
+            <h2>Nei prossimi 5 giorni, il mercato andrà...</h2>
+            <div class="vote-buttons">
+                <button class="btn-up" onclick="vote('up')">🔼 UP</button>
+                <button class="btn-flat" onclick="vote('flat')">⏺️ FLAT</button>
+                <button class="btn-down" onclick="vote('down')">🔽 DOWN</button>
+            </div>
+        </div>
+
+        <div class="social-proof">
+            <h3>Risultati della Community</h3>
+            <p>Il 65% degli utenti pensa che il mercato andrà in positivo! (Dati di esempio)</p>
+            <small>I risultati verranno aggiornati periodicamente in base ai voti ricevuti.</small>
+        </div>
+    </main>
+
+    <script>
+        const voteLinks = {
+            up: 'IL_TUO_LINK_UP',
+            flat: 'IL_TUO_LINK_FLAT',
+            down: 'IL_TUO_LINK_DOWN'
+        };
+
+        function vote(choice) {
+            const url = voteLinks[choice];
+            if (url && !url.includes('IL_TUO_LINK')) {
+                // Apre il Google Form in una nuova scheda per registrare il voto
+                window.open(url, '_blank');
+                alert('Grazie per aver votato! Puoi chiudere la scheda del modulo e tornare qui.');
+            } else {
+                alert('Link di voto non ancora configurato.');
+            }
+        }
+    </script>
+</body>
+</html>
