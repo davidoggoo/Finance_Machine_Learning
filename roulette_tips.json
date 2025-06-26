@@ -3,6 +3,7 @@
     "ticker": "AAPL",
     "prediction_direction": "FLAT",
     "details": "Prezzo attuale: 201.00. Previsione AI: 201.67 (+0.33%)",
+    "predicted_price": 201.67,
     "chart_data": [
       [
         1743465600000,
@@ -250,6 +251,7 @@
     "ticker": "MSFT",
     "prediction_direction": "DOWN",
     "details": "Prezzo attuale: 497.45. Previsione AI: 492.76 (-0.94%)",
+    "predicted_price": 492.76,
     "chart_data": [
       [
         1743465600000,
@@ -497,6 +499,7 @@
     "ticker": "GOOGL",
     "prediction_direction": "DOWN",
     "details": "Prezzo attuale: 173.54. Previsione AI: 171.90 (-0.95%)",
+    "predicted_price": 171.9,
     "chart_data": [
       [
         1743465600000,
@@ -744,6 +747,7 @@
     "ticker": "AMZN",
     "prediction_direction": "DOWN",
     "details": "Prezzo attuale: 217.12. Previsione AI: 216.03 (-0.50%)",
+    "predicted_price": 216.03,
     "chart_data": [
       [
         1743465600000,
@@ -991,6 +995,7 @@
     "ticker": "TSLA",
     "prediction_direction": "FLAT",
     "details": "Prezzo attuale: 325.78. Previsione AI: 326.03 (+0.08%)",
+    "predicted_price": 326.03,
     "chart_data": [
       [
         1743465600000,
@@ -1238,6 +1243,7 @@
     "ticker": "NVDA",
     "prediction_direction": "DOWN",
     "details": "Prezzo attuale: 155.02. Previsione AI: 153.57 (-0.94%)",
+    "predicted_price": 153.57,
     "chart_data": [
       [
         1743465600000,
@@ -1485,6 +1491,7 @@
     "ticker": "META",
     "prediction_direction": "DOWN",
     "details": "Prezzo attuale: 726.09. Previsione AI: 719.27 (-0.94%)",
+    "predicted_price": 719.27,
     "chart_data": [
       [
         1743465600000,
