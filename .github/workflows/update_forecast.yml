@@ -7,6 +7,9 @@ on:
   # Permette l'avvio manuale
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-forecast:
     runs-on: ubuntu-latest
