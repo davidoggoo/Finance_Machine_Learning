@@ -1,4 +1,4 @@
-# generate_mood.py - Versione Definitiva v2, basata su yfinance per massima affidabilità
+# generate_mood.py - Versione Definitiva v3, con conversione esplicita a float
 
 import yfinance as yf
 import json
@@ -7,21 +7,23 @@ import pandas as pd
 
 def get_vix_mood():
     """
-    Recupera l'ultimo valore del VIX usando yfinance (più affidabile per gli indici),
-    lo normalizza in una scala 0-100 (Fear/Greed) e salva il risultato.
+    Recupera l'ultimo valore del VIX usando yfinance, lo converte esplicitamente
+    in un numero float per massima robustezza, lo normalizza e salva il risultato.
     """
-    print("--- Inizio recupero dati per Mood Trader Dial (metodo yfinance) ---")
+    print("--- Inizio recupero dati per Mood Trader Dial (metodo yfinance v3) ---")
     
     try:
-        # yfinance è lo strumento migliore per scaricare dati di indici come VIX e S&P 500
         ticker = "^VIX"
-        vix_data = yf.download(ticker, period="5d", progress=False) # Scarichiamo solo gli ultimi giorni
+        # Scarica solo gli ultimi giorni per efficienza
+        vix_data = yf.download(ticker, period="5d", progress=False, auto_adjust=True) 
         
         if vix_data.empty:
             raise ValueError(f"Nessun dato scaricato per il ticker {ticker}")
 
-        # Estrai l'ultimo valore di chiusura e la data
-        last_vix_value = vix_data['Close'].iloc[-1]
+        # --- SOLUZIONE DEFINITIVA: Conversione Esplicita a Float ---
+        # .iloc[-1] restituisce l'ultimo valore. Lo convertiamo in un numero Python standard.
+        # Questo risolve il TypeError e rende il codice robusto.
+        last_vix_value = float(vix_data['Close'].iloc[-1])
         last_day = vix_data.index[-1]
         
         print(f"Ultimo valore VIX recuperato: {last_vix_value:.2f} in data {last_day.date()}")
