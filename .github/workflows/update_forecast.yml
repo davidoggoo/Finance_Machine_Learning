@@ -34,6 +34,8 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add .
-          git diff --staged --quiet || git commit -m "Auto-update S&P 500 forecast chart for $(date +'%Y-%m-%d')"
+          # Aggiunge tutti i file nuovi o modificati nella root e nella cartella charts
+          git add forecast.png charts/. charts_list.json
+          # Committa solo se ci sono state modifiche
+          git diff --staged --quiet || git commit -m "Auto-update S&P 500 forecast and gallery for $(date +'%Y-%m-%d')"
           git push
