@@ -1,0 +1,32 @@
+name: Weekly FAQ Generator
+
+on:
+  schedule:
+    - cron: '0 8 * * 0' # Ogni Domenica alle 8:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-faqs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        # Per ora non servono dipendenze extra
+        run: echo "Nessuna dipendenza Python extra per questo script"
+      - name: Run FAQ Generator Script
+        run: python generate_faqs.py
+      - name: Commit all new content
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add faq/. sitemap.xml
+          git diff --staged --quiet || git commit -m "Auto-update FAQ pages and sitemap"
+          git push
