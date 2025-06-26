@@ -13,7 +13,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # --- CONFIGURAZIONE ---
 FORECAST_HORIZON = 10
-HISTORY_DAYS = 50
+HISTORY_DAYS = 30
 
 def generate_final_forecast():
     """
