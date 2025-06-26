@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trade Roulette | Progetto Finanza AI</title>
+    <meta name="description" content="Gira la ruota e ottieni un tip di trading generato dall'AI su un ticker casuale.">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        header { background-color: #fff; padding: 1rem; border-bottom: 1px solid #ddd; text-align: center; }
+        nav a { text-decoration: none; color: #333; margin: 0 15px; font-weight: 500; }
+        nav a.active { color: #007bff; font-weight: bold; }
+        main { text-align: center; padding: 2rem; }
+        .roulette-container { min-height: 200px; border: 2px dashed #ccc; border-radius: 10px; padding: 2rem; margin: 2rem auto; max-width: 600px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #tip-display { font-size: 1.5rem; font-weight: bold; transition: opacity 0.3s ease-in-out; }
+        #tip-details { font-size: 1rem; color: #666; margin-top: 0.5rem; }
+        #spin-button { font-size: 1.2rem; padding: 1rem 2rem; margin-top: 2rem; cursor: pointer; border-radius: 8px; border: none; background-color: #007bff; color: white; font-weight: bold; }
+        #spin-button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+          <a href="/Finance_Machine_Learning/">Forecast S&P 500</a>
+          <a href="/Finance_Machine_Learning/mood-dial.html">Mood Trader Dial</a>
+          <a href="/Finance_Machine_Learning/roulette.html" class="active">AI Trade Roulette</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>AI Trade Roulette 🎰</h1>
+        <p>Clicca il pulsante per ottenere un'idea di trading generata dalla nostra AI.</p>
+        <div class="roulette-container">
+            <div id="tip-display">Pronto a girare la ruota?</div>
+            <p id="tip-details"></p>
+        </div>
+        <button id="spin-button">Gira la Ruota!</button>
+    </main>
+
+    <script>
+        let tips = [];
+        const tipDisplay = document.getElementById('tip-display');
+        const tipDetails = document.getElementById('tip-details');
+        const spinButton = document.getElementById('spin-button');
+
+        // Carica i tips una sola volta all'avvio
+        fetch('roulette_tips.json?v=' + new Date().getTime())
+            .then(response => response.ok ? response.json() : Promise.reject('Dati non disponibili'))
+            .then(data => {
+                if (data && data.length > 0) {
+                    tips = data;
+                } else {
+                    tipDisplay.innerText = 'Nessun tip disponibile al momento.';
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+                tipDisplay.innerText = 'Impossibile caricare i dati della roulette.';
+            });
+
+        spinButton.addEventListener('click', () => {
+            if (tips.length === 0) return;
+
+            // Effetto visivo
+            tipDisplay.style.opacity = 0;
+            tipDetails.style.opacity = 0;
+
+            setTimeout(() => {
+                const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                let directionEmoji = '⏺️';
+                if (randomTip.prediction_direction === 'UP') directionEmoji = '🔼';
+                if (randomTip.prediction_direction === 'DOWN') directionEmoji = '🔽';
+                
+                tipDisplay.innerHTML = `${randomTip.ticker} &rarr; <b>${randomTip.prediction_direction}</b> ${directionEmoji}`;
+                tipDetails.innerText = randomTip.details;
+
+                tipDisplay.style.opacity = 1;
+                tipDetails.style.opacity = 1;
+            }, 300);
+        });
+    </script>
+</body>
+</html>
