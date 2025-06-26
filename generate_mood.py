@@ -1,4 +1,4 @@
-# generate_mood.py - Versione FINALE AI-Powered
+# generate_mood.py - Versione Definitiva v2.1 AI-Powered, con fix sul tipo di dato scalare
 
 import yfinance as yf
 import pandas as pd
@@ -13,6 +13,7 @@ def generate_ai_mood_dial():
     """
     Recupera i dati storici del VIX, addestra un modello XGBoost per prevedere
     il valore del giorno successivo, e calcola sia il mood attuale che quello previsto.
+    Questa versione assicura che i valori estratti siano scalari (float).
     """
     print("--- Inizio processo AI per Mood Trader Dial ---")
 
@@ -43,10 +44,13 @@ def generate_ai_mood_dial():
         print("Modello addestrato.")
 
         # --- 4. Calcolo Mood Attuale ---
-        latest_real_vix = y_train.iloc[-1]
+        # ===== LA CORREZIONE DEFINITIVA È QUI =====
+        # Estraiamo l'ultimo valore e lo convertiamo esplicitamente in un numero float.
+        latest_real_vix = float(y_train.iloc[-1])
         latest_real_date = y_train.index[-1]
         
         def calculate_mood_score(vix_value):
+            # Questa funzione ora riceverà sempre un numero, mai una Series.
             fear_level = max(0, min(1, (vix_value - 15) / (50 - 15)))
             return 100 - (fear_level * 100)
 
@@ -77,7 +81,7 @@ def generate_ai_mood_dial():
 
     except Exception as e:
         print(f"ERRORE CRITICO: {e}")
-        raise e
+        raise e # Fai fallire il workflow per notificarci
 
 if __name__ == '__main__':
     generate_ai_mood_dial()
